@@ -2,8 +2,13 @@ name: Process Message Queue
 
 on:
   schedule:
-    # Ejecuta cada minuto
+    # Ejecuta cada minuto (puede tener delays en repos gratuitos)
     - cron: '* * * * *'
+  
+  # Trigger automático cuando se modifica la cola
+  push:
+    paths:
+      - 'queue/pending.jsonl'
   
   # Permite ejecución manual para testing
   workflow_dispatch:
