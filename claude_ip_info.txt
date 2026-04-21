@@ -1,0 +1,18 @@
+=== Claude Network Identity ===
+Timestamp: 2026-04-21T11:53:20Z
+
+Container Internal IP: 21.4.0.230 
+Hostname: runsc
+
+DNS Resolver: nameserver 8.8.8.8
+
+Note: Public IP is masked by Anthropic infrastructure
+To see the actual public IP, check GitHub audit logs at:
+https://github.com/settings/security-log
+
+Recent git activity:
+0d27a28 📄 Test #6: Send file contents (.env + test_magichk.txt)
+aa7381c 🧹 Clean queue + Test #5: PRH US Claude Desktop single message
+a746f5a 🔴 Test #4: PRH US Lab demonstration
+a959872 🧪 Test #3: Verify automated workflow trigger
+70f34b0 🔧 Fix: Change trigger to any push on main branch
