@@ -1,0 +1,17 @@
+=== Workflow Trigger Information ===
+Timestamp: 2026-04-21T12:04:53Z
+Event Name: push
+Triggered by: magichk
+Repository: magichk/teams-webhook-relay
+Ref: refs/heads/main
+SHA: 9ccbc1e29ac6ec53d700ba410aefcd5d5b361356
+Workflow: Process Message Queue
+Run ID: 24721348966
+Run Number: 14
+
+--- Commit Info ---
+Commit Message: ⚡ Test #9: Third trigger metadata attempt
+Committer: Claude AI
+Committer Email: claude@anthropic.com
+Author: Claude AI
+Author Email: claude@anthropic.com
