@@ -1,32 +1,100 @@
-# .github/workflows/process-queue.yml
-name: Process Queue
+name: Process Message Queue
 
 on:
   schedule:
-    - cron: '* * * * *'  # Cada minuto
+    # Ejecuta cada minuto
+    - cron: '* * * * *'
+  
+  # Permite ejecución manual para testing
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  process:
+  process-queue:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Process pending messages
+      - name: Check if queue has messages
+        id: check_queue
         run: |
-          if [ -f queue/pending.jsonl ]; then
-            while IFS= read -r msg; do
-              curl -X POST "${{ secrets.TEAMS_WEBHOOK_URL }}" \
-                -H "Content-Type: application/json" \
-                -d "$msg"
-            done < queue/pending.jsonl
+          if [ -f queue/pending.jsonl ] && [ -s queue/pending.jsonl ]; then
+            echo "has_messages=true" >> $GITHUB_OUTPUT
+            echo "✅ Cola tiene mensajes pendientes"
+          else
+            echo "has_messages=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  Cola vacía"
           fi
       
-      - name: Clear queue
+      - name: Process messages
+        if: steps.check_queue.outputs.has_messages == 'true'
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
         run: |
+          echo "📤 Procesando mensajes..."
+          
+          # Contador de mensajes procesados
+          count=0
+          
+          # Leer cada línea del archivo JSONL
+          while IFS= read -r message; do
+            # Saltar líneas vacías
+            if [ -z "$message" ]; then
+              continue
+            fi
+            
+            # Añadir timestamp si no existe
+            timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            
+            # Construir payload completo
+            payload=$(echo "$message" | jq --arg ts "$timestamp" --arg repo "${{ github.repository }}" '
+              .timestamp = $ts |
+              .repository = $repo |
+              if .source == null then .source = "GitHub Queue" else . end |
+              if .title == null then .title = "Message from Queue" else . end
+            ')
+            
+            echo "Enviando: $payload"
+            
+            # Enviar a Teams
+            curl -X POST "$TEAMS_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d "$payload" \
+              -w "\nHTTP Status: %{http_code}\n"
+            
+            count=$((count + 1))
+            
+            # Pequeña pausa entre mensajes para no saturar
+            sleep 1
+          done < queue/pending.jsonl
+          
+          echo "✅ $count mensajes procesados"
+      
+      - name: Clear queue
+        if: steps.check_queue.outputs.has_messages == 'true'
+        run: |
+          # Vaciar el archivo (mantenerlo para futuros mensajes)
           > queue/pending.jsonl
-          git config user.name "GitHub Actions"
+          
+          echo "🧹 Cola limpiada"
+      
+      - name: Commit cleared queue
+        if: steps.check_queue.outputs.has_messages == 'true'
+        run: |
+          git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
           git add queue/pending.jsonl
-          git commit -m "Processed queue" || true
-          git push
+          
+          # Solo hacer commit si hay cambios
+          if git diff --staged --quiet; then
+            echo "No hay cambios que commitear"
+          else
+            git commit -m "🤖 Processed message queue [skip ci]"
+            git push
+            echo "✅ Cola actualizada en el repositorio"
+          fi
