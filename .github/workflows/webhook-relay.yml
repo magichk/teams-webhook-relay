@@ -1,0 +1,42 @@
+name: Teams Webhook Relay
+
+on:
+  # Trigger manual desde la UI de GitHub
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Mensaje a enviar'
+        required: true
+        default: 'Test desde GitHub Actions'
+      severity:
+        description: 'Severidad'
+        required: false
+        default: 'info'
+        type: choice
+        options:
+          - info
+          - low
+          - medium
+          - high
+          - critical
+  
+  # O trigger vía API de GitHub (para automatización)
+  repository_dispatch:
+    types: [send_to_teams]
+
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send to Teams via Power Automate
+        run: |
+          curl -X POST "${{ secrets.TEAMS_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"text\": \"${{ github.event.inputs.message || github.event.client_payload.message }}\",
+              \"title\": \"Security Alert - GitHub Relay\",
+              \"severity\": \"${{ github.event.inputs.severity || github.event.client_payload.severity || 'info' }}\",
+              \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+              \"source\": \"GitHub Actions Relay\",
+              \"repository\": \"${{ github.repository }}\"
+            }"
