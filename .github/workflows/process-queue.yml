@@ -5,10 +5,10 @@ on:
     # Ejecuta cada minuto (puede tener delays en repos gratuitos)
     - cron: '* * * * *'
   
-  # Trigger automático cuando se modifica la cola
+  # Trigger automático en cualquier push a main
   push:
-    paths:
-      - 'queue/pending.jsonl'
+    branches:
+      - main
   
   # Permite ejecución manual para testing
   workflow_dispatch:
