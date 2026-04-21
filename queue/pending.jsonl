@@ -1,4 +1,1 @@
-{"text":"🚀 Sistema de cola activado correctamente - Test desde Claude AI","severity":"info","title":"Queue System Online","source":"Claude AI via GitHub Queue"}
-{"text":"🔍 Segunda prueba - Debugging workflow execution","severity":"medium","title":"Debug Test #2","source":"Claude AI Debugging"}
-{"text":"✅ Tercera prueba - Verificando trigger automático post-fix","severity":"high","title":"Automated Trigger Test","source":"Claude AI - Auto Test"}
-{"text":"Test for PRH US - Security automation lab demonstration","severity":"critical","title":"PRH US Lab Test","source":"PRHGE Security Team - Joan"}
+{"text":"Test for PRH US - Claude Desktop - Single message test with clean queue","severity":"high","title":"PRH US - Claude Desktop Test","source":"Claude Desktop via GitHub Relay"}
