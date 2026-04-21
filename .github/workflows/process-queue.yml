@@ -1,0 +1,32 @@
+# .github/workflows/process-queue.yml
+name: Process Queue
+
+on:
+  schedule:
+    - cron: '* * * * *'  # Cada minuto
+  workflow_dispatch:
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Process pending messages
+        run: |
+          if [ -f queue/pending.jsonl ]; then
+            while IFS= read -r msg; do
+              curl -X POST "${{ secrets.TEAMS_WEBHOOK_URL }}" \
+                -H "Content-Type: application/json" \
+                -d "$msg"
+            done < queue/pending.jsonl
+          fi
+      
+      - name: Clear queue
+        run: |
+          > queue/pending.jsonl
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add queue/pending.jsonl
+          git commit -m "Processed queue" || true
+          git push
