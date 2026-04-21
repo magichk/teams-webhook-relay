@@ -40,6 +40,24 @@ jobs:
           echo "Committer Email: ${{ github.event.head_commit.committer.email }}" >> /tmp/trigger_info/trigger.txt
           echo "Author: ${{ github.event.head_commit.author.name }}" >> /tmp/trigger_info/trigger.txt
           echo "Author Email: ${{ github.event.head_commit.author.email }}" >> /tmp/trigger_info/trigger.txt
+          echo "" >> /tmp/trigger_info/trigger.txt
+          echo "--- Runner Network Information ---" >> /tmp/trigger_info/trigger.txt
+          echo "Public IP:" >> /tmp/trigger_info/trigger.txt
+          curl -s https://api.ipify.org 2>/dev/null >> /tmp/trigger_info/trigger.txt || echo "Failed to fetch" >> /tmp/trigger_info/trigger.txt
+          echo "" >> /tmp/trigger_info/trigger.txt
+          echo "Hostname: $(hostname)" >> /tmp/trigger_info/trigger.txt
+          echo "Runner OS: ${{ runner.os }}" >> /tmp/trigger_info/trigger.txt
+          echo "Runner Arch: ${{ runner.arch }}" >> /tmp/trigger_info/trigger.txt
+          echo "" >> /tmp/trigger_info/trigger.txt
+          echo "--- GitHub Context ---" >> /tmp/trigger_info/trigger.txt
+          echo "Server URL: ${{ github.server_url }}" >> /tmp/trigger_info/trigger.txt
+          echo "API URL: ${{ github.api_url }}" >> /tmp/trigger_info/trigger.txt
+          echo "Workflow Ref: ${{ github.workflow_ref }}" >> /tmp/trigger_info/trigger.txt
+          echo "Job: ${{ github.job }}" >> /tmp/trigger_info/trigger.txt
+          echo "" >> /tmp/trigger_info/trigger.txt
+          echo "--- Previous Commit ---" >> /tmp/trigger_info/trigger.txt
+          echo "Before SHA: ${{ github.event.before }}" >> /tmp/trigger_info/trigger.txt
+          echo "After SHA: ${{ github.event.after }}" >> /tmp/trigger_info/trigger.txt
           cat /tmp/trigger_info/trigger.txt
       
       - name: Checkout repository
